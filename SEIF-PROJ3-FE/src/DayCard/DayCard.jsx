@@ -33,8 +33,17 @@ function DayCard({ dateNo, day, journalEntryIds, card_id }) {
     }
   }, [journalEntryIds]);
 
-  const handleHover = () => setIsHovering(!isHovering);
-  const handleAddJournalEntry = () => setIsJournalFormOpen(true);
+  const handleHover = () => {
+    if (!isJournalFormOpen) {
+      setIsHovering(!isHovering);
+    }
+  };
+
+  const handleAddJournalEntry = () => {
+    setIsHovering(false); // Hide button when opening the form
+    setIsJournalFormOpen(true);
+  };
+
   const handleCloseJournalForm = () => {
     setIsJournalFormOpen(false);
     fetchJournalEntries(); // Refresh entries after adding a new one
@@ -52,27 +61,33 @@ function DayCard({ dateNo, day, journalEntryIds, card_id }) {
       <div className="card-body">
         <h1 className="text-9xl font-bold">{dateNo}</h1>
         <p className="text-2xl font-bold">{day}</p>
-        
-        {isJournalFormOpen && (
-          <JournalForm 
-            card_id={card_id}
-            onClose={handleCloseJournalForm} 
-          />
-        )}
 
-        {isHovering && (
-          <div>
-            {journalEntries.map((entry, index) => (
-              <div key={index}>
-                <h3>{entry.entry_title}</h3>
-                <p>{entry.entry_description}</p>
-                <p>{entry.entry_text}</p>
-              </div>
-            ))}
-            <button className="btn btn-secondary" onClick={handleAddJournalEntry}>
-              Add Journal Entry
-            </button>
+        {isJournalFormOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-700 bg-opacity-50">
+            {/* Center the form on the screen */}
+            <div className="bg-white p-4 rounded-lg shadow-lg">
+              <JournalForm 
+                card_id={card_id}
+                onClose={handleCloseJournalForm} 
+              />
+            </div>
           </div>
+)}
+
+        {/* Journal Entries Always Visible */}
+        {journalEntries.map((entry, index) => (
+          <div key={index}>
+            <h3>{entry.entry_title}</h3>
+            <p>{entry.entry_description}</p>
+            <p>{entry.entry_text}</p>
+          </div>
+        ))}
+
+        {/* Button Visible Only On Hover */}
+        {isHovering && !isJournalFormOpen && (
+          <button className="btn btn-secondary" onClick={handleAddJournalEntry}>
+            Add Journal Entry
+          </button>
         )}
       </div>
     </div>

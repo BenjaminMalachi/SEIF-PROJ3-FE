@@ -18,11 +18,6 @@ import DayCard from "./DayCard/DayCard"; // Adjust the import path as necessary
 
 export default function App() {
   const [user, setUser] = useState(null);
-  const exampleDateNo = '1';
-  const exampleDay = 'Monday';
-  const exampleJournalEntryIds = ['65a6aa802302804f074118b8'];
-  const exampleCardId = ['65a2098afaff54dc30fd9d9b']
-
   // Commenting out the useEffect that retrieves user information - Vivian
 
   // useEffect(() => {
@@ -85,16 +80,6 @@ export default function App() {
         <Routes>
           {/* Define a route for the root path */}
           <Route path="/" element={<Frontpage />} />
-
-          {/* Other routes */}
-          <Route path="/daycard-test" element={
-            <DayCard 
-              dateNo={exampleDateNo} 
-              day={exampleDay} 
-              journalEntryIds={exampleJournalEntryIds}
-              card_id={exampleCardId}
-            />
-          } />
 
           {/* Redirect any undefined route to the root path for now */}
           <Route path="*" element={<Navigate replace to="/" />} />

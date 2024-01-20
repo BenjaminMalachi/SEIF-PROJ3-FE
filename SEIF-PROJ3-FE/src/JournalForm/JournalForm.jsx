@@ -39,6 +39,13 @@ const JournalForm = ({ card_id, onClose }) => {
   return (
     <div className="flex justify-center items-center h-screen">
       <div className="card bg-base-100 shadow-xl w-full max-w-2xl">
+        {/* Close Button */}
+        <button 
+          onClick={onClose} 
+          className="absolute top-0 right-0 btn btn-sm btn-circle btn-outline"
+        >
+          ✕
+        </button>
         <div className="card-body">
           <form onSubmit={handleSubmit}>
             <h2 className="card-title text-center mb-4">Journal Entry</h2>
