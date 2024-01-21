@@ -16,7 +16,7 @@ import JournalEntry from "./JournalEntry/JournalEntry";
 import SignUpPage from "./SignUpPage/SignUpPage";
 
 export default function App() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(getUser);
 
   return (
     <Router>
