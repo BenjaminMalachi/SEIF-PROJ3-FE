@@ -1,5 +1,5 @@
 import * as usersAPI from "../api/users";
-// import { getToken } from "../util/security";
+import { getToken } from "../util/security";
 
 export async function getUserByUsername(username) {
   return await usersAPI.getUserByUsername(username);
