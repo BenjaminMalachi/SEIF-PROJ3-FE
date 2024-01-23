@@ -12,20 +12,23 @@ const JournalForm = ({ card_id, user_id, onClose }) => {
 
   // Fetch token and user details from local storage
   useEffect(() => {
+    console.log(`JournalForm mounted with card_id: ${card_id}`);
     const token = getToken();
     if (!token) {
       setError('No token found or token is invalid');
     }
-  }, []);
+  }, [card_id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const token = getToken();
-    if (!token) {
-      setError('No token found or token is invalid');
-      return;
-    }
+    console.log(`Attempting to submit with card_id: ${card_id} and user_id: ${user_id}`);
+    // if (!card_id || !user_id) {
+    //   console.error('card_id or user_id is undefined.');
+    //   setError('Submission error: The form is missing required user information.');
+    //   return;
+    // }
 
     // create the journal entry data
     const entryData = {
@@ -58,8 +61,6 @@ const JournalForm = ({ card_id, user_id, onClose }) => {
     return <div>Error: {error}</div>;
   }
 
-  // JSX for form goes here...
-  // Ensure that you're displaying any errors to the user and handling form submit
   return (
     <div className="flex justify-center items-center h-screen">
       <div className="card bg-base-100 shadow-xl w-full max-w-2xl">

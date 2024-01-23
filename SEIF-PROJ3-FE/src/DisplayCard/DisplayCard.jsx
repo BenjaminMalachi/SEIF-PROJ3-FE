@@ -32,3 +32,4 @@ function DisplayCard(props) {
   // );
 }
 export default DisplayCard;
+

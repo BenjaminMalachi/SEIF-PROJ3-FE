@@ -4,12 +4,12 @@ export async function getDayCardByDate(date) {
   const response = await fetch(`${BASE_URL}?date=${date}`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
+    'Cache-Control': 'no-cache',
   });
-  if (!response.ok) {
-    throw new Error('Failed to get day card');
-  }
-  return await response.json();
+  // Do not throw an error here, just return the response object.
+  return response;
 }
+
 
 export async function createDayCard(cardData) {
   const response = await fetch(`${BASE_URL}/create-card`, {
