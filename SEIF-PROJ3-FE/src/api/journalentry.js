@@ -52,3 +52,10 @@ export async function getJournalEntryById(entryId) {
   }
 }
 
+export async function getJournalEntriesByUserAndMonth(userId, month, year) {
+  const response = await fetch(`http://localhost:3000/journal/user/${userId}/month/${month}/year/${year}`);
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  return await response.json();
+}

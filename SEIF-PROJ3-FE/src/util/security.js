@@ -42,3 +42,18 @@ export function getToken() {
     }
     return token;
 }
+
+export function getUserIdFromToken() {
+  const token = localStorage.getItem('token');
+  if (!token) return null;
+
+  try {
+      const base64Url = token.split('.')[1]; // Get the payload part of the token
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const payload = JSON.parse(window.atob(base64));
+      return payload.userId; // Or the appropriate field where the user ID is stored
+  } catch (error) {
+      console.error('Error decoding token:', error);
+      return null;
+  }
+}

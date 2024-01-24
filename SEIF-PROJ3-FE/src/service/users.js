@@ -1,5 +1,7 @@
 import * as usersAPI from "../api/users";
 import { getToken } from "../util/security";
+import { getUserIdFromToken } from '../util/security';
+
 
 export async function getUserByUsername(username) {
   return await usersAPI.getUserByUsername(username);
@@ -35,7 +37,20 @@ export async function loginUser(userData) {
 }
 
 export function getUser() {
-  const token = getToken();
-  // If there's a token, return the user in the payload, otherwise return null
-  return token ? JSON.parse(atob(token.split(".")[1])).payload.user : null;
+  const token = localStorage.getItem('token');
+  if (!token) return null;
+
+  try {
+      const base64Url = token.split('.')[1];
+      if (!base64Url) return null; // Check if the token has three parts
+
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const payload = JSON.parse(window.atob(base64));
+
+      return payload.user ? payload.user : null;
+  } catch (error) {
+      console.error('Error decoding token:', error);
+      return null;
+  }
 }
+

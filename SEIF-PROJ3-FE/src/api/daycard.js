@@ -5,10 +5,11 @@ export async function getDayCardByDate(date) {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
   });
+  const data = await response.json();
   if (!response.ok) {
-    throw new Error('Failed to get day card');
+    throw new Error(data.message || 'Failed to get day card');
   }
-  return await response.json();
+  return data;
 }
 
 export async function createDayCard(cardData) {

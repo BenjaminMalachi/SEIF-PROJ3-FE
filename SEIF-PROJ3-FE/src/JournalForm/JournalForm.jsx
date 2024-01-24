@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createJournalEntry } from '../service/journalentry';
+import { getUserIdFromToken } from '../util/security';
 
 const JournalForm = ({ card_id, onClose }) => {
   const [title, setTitle] = useState('');
@@ -7,11 +8,19 @@ const JournalForm = ({ card_id, onClose }) => {
   const [text, setText] = useState('');
   const [date, setDate] = useState('');
 
-  const user_id = "65a22ea8faff54dc30fd9da1";
-  //const card_id = "65a2098afaff54dc30fd9d9b";
+  const user_id = getUserIdFromToken(); // Replace dummy data with real user ID
+
+  useEffect(() => {
+    console.log("Received card_id:", card_id); // Check the card_id value
+  }, [card_id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!user_id) {
+      console.error("User ID is missing");
+      return; // Prevent the form submission if user ID is not available
+    }
+
     const entryData = {
       user_id,
       card_id,
@@ -20,6 +29,8 @@ const JournalForm = ({ card_id, onClose }) => {
       entry_text: text,
       date,
     };
+
+    console.log("Submitting journal entry:", entryData); // Check the submission data
 
     try {
       const savedEntry = await createJournalEntry(entryData);

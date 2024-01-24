@@ -1,56 +1,60 @@
 import React, { useState, useEffect } from "react";
-import { getJournalEntryById } from "../service/journalentry";
 import JournalForm from "../JournalForm/JournalForm";
+import { getJournalEntriesByUserAndMonth } from "../api/journalentry";
+import { getUserIdFromToken } from "../util/security";
 
-function DayCard({ dateNo, day, journalEntryIds, card_id }) {
-  const [journalEntries, setJournalEntries] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
+function DayCard({ dateNo, day, journalEntries, card_id }) {
   const [isHovering, setIsHovering] = useState(false);
   const [isJournalFormOpen, setIsJournalFormOpen] = useState(false);
+  const [updatedJournalEntries, setUpdatedJournalEntries] = useState(journalEntries);
 
-  // Function to fetch journal entries
+  useEffect(() => {
+    fetchJournalEntries();
+  }, [card_id]);
+
   const fetchJournalEntries = async () => {
     try {
-      setIsLoading(true);
-      const entries = await Promise.all(
-        journalEntryIds.map(id => getJournalEntryById(id))
-      );
-      setJournalEntries(entries);
-    } catch (err) {
-      setError('Failed to fetch journal entries');
-      console.error(err);
-    } finally {
-      setIsLoading(false);
+      const userId = getUserIdFromToken();
+      if (!userId) {
+        console.error("User ID not found");
+        return;
+      }
+
+      console.log("Fetching entries for card_id:", card_id, "and userId:", userId);
+
+      const currentYear = new Date().getFullYear();
+      const currentMonth = new Date().getMonth() + 1;
+      const entries = await getJournalEntriesByUserAndMonth(userId, currentMonth, currentYear);
+
+      console.log("Fetched entries:", entries);
+
+      const filteredEntries = entries.filter(entry => entry.card_id === card_id);
+
+      console.log("Filtered entries for the card:", filteredEntries);
+
+      setUpdatedJournalEntries(filteredEntries);
+    } catch (error) {
+      console.error('Error fetching journal entries:', error);
     }
   };
 
-  useEffect(() => {
-    if (journalEntryIds && journalEntryIds.length > 0) {
-      fetchJournalEntries();
-    } else {
-      setIsLoading(false);
-    }
-  }, [journalEntryIds]);
-
   const handleHover = () => {
-    if (!isJournalFormOpen) {
-      setIsHovering(!isHovering);
-    }
+    setIsHovering(!isHovering);
   };
 
   const handleAddJournalEntry = () => {
-    setIsHovering(false); // Hide button when opening the form
+    setIsHovering(false);
     setIsJournalFormOpen(true);
   };
 
   const handleCloseJournalForm = () => {
     setIsJournalFormOpen(false);
-    fetchJournalEntries(); // Refresh entries after adding a new one
+    fetchJournalEntries();
   };
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div className="alert alert-error">{error}</div>;
+  useEffect(() => {
+    console.log("Updated journal entries state:", updatedJournalEntries);
+  }, [updatedJournalEntries]);
 
   return (
     <div 
@@ -64,7 +68,6 @@ function DayCard({ dateNo, day, journalEntryIds, card_id }) {
 
         {isJournalFormOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-700 bg-opacity-50">
-            {/* Center the form on the screen */}
             <div className="bg-white p-4 rounded-lg shadow-lg">
               <JournalForm 
                 card_id={card_id}
@@ -72,10 +75,9 @@ function DayCard({ dateNo, day, journalEntryIds, card_id }) {
               />
             </div>
           </div>
-)}  
+        )}
 
-        {/* Journal Entries Always Visible */}
-        {journalEntries.map((entry, index) => (
+        {Array.isArray(updatedJournalEntries) && updatedJournalEntries.map((entry, index) => (
           <div key={index}>
             <h3>{entry.entry_title}</h3>
             <p>{entry.entry_description}</p>
@@ -83,7 +85,6 @@ function DayCard({ dateNo, day, journalEntryIds, card_id }) {
           </div>
         ))}
 
-        {/* Button Visible Only On Hover */}
         {isHovering && !isJournalFormOpen && (
           <button className="btn btn-secondary" onClick={handleAddJournalEntry}>
             Add Journal Entry
