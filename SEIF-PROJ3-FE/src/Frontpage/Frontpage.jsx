@@ -2,41 +2,47 @@ import { React, useState, useEffect } from "react";
 import DisplayCard from "../DisplayCard/DisplayCard";
 import QuoteCard from "../QuoteCard/QuoteCard";
 
-//TODO: To fetch cards to render for DisplayCards, to create useElysioAPI for logic to create the display sequence.
+import { getCardsbyMonthYear } from "../service/carddisplay";
 
 function Frontpage(props) {
   const { month } = props;
-
-  // Dummy Data - Ben
-  const exampleJournalEntryIds = ['65ab8f82371a90941eac88a9']; 
-  const exampleCardId = ['65a2098afaff54dc30fd9d9b'];
-  //
-
-  console.log(month);
   const [monthArray, setMonthArray] = useState(generateMonthArray(2024, 1)); //For the days
-
-  //TODO: Fetch the display sequence from the displaycard route
   const [displayCardArray, setDisplayCardArray] = useState([]); // For the cards
+  const [isLoading, setIsloading] = useState(false);
 
+  //Fetching from CardDisplay API
   useEffect(() => {
-    const updatedDisplayCardArray = monthArray.map((day, index) => {
-      return (
-        <DisplayCard
-          key={index}
-          dateNo={day.dateNumber}
-          day={day.day}
-          index={index}
-          journalEntryIds={exampleJournalEntryIds}
-          card_id={exampleCardId}
-        />
-      );
-    });
-    setDisplayCardArray(updatedDisplayCardArray);
-  }, [monthArray]);
+    const fetchCards = async () => {
+      try {
+        setIsloading(true);
+        const cards = await getCardsbyMonthYear(2024, 1);
+        // setMonthArray(cards);
+        setDisplayCardArray(cards.displayCards);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsloading(false);
+      }
+    };
+    fetchCards();
+  }, []);
+
+  console.log(displayCardArray);
 
   return (
     <>
-      <div className="ml-6 mr-6 gap-8 columns-4 ">{displayCardArray}</div>
+      <div className="ml-6 mr-6 gap-8 columns-4 ">
+        {displayCardArray.map((card, index) => {
+          return (
+            <DisplayCard
+              key={index}
+              cardType={card.cardType}
+              cardData={card}
+              index={index}
+            />
+          );
+        })}
+      </div>
     </>
   );
 }

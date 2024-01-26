@@ -1,16 +1,17 @@
+import { getToken } from "../util/security";
 const BASE_URL = import.meta.env.MODE === 'development'
   ? 'http://localhost:3000/journal'
   : 'https://seif-proj-3-be-379k.vercel.app/journal';
 
-//create journal based on auth token
-export async function createJournalEntry(entryData, token) {
-  const createURL = `${BASE_URL}/create-journal-entry`;
+export async function createJournalEntry(entryData) {
+
+  const token = getToken();
+  
+  const createURL = `${BASE_URL}/create-journal-entry`; 
   const response = await fetch(createURL, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}` // Assuming you are using Bearer token
-    },
+    //TODO: Add JWT token to headers
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
     body: JSON.stringify(entryData),
   });
 
