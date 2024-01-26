@@ -37,8 +37,15 @@ export async function loginUser(userData) {
 
 export function getUser() {
   const token = getToken();
-  // If there's a token, return the user in the payload, otherwise return null
-  return token ? JSON.parse(atob(token.split(".")[1])).payload.email : null;
+  if (!token) return null;
+
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return payload?.payload?.email ?? null;
+  } catch (error) {
+    console.error("Error parsing token payload:", error);
+    return null;
+  }
 }
 
 export async function logoutUser() {

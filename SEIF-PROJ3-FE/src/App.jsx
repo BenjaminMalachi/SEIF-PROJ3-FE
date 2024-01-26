@@ -1,4 +1,4 @@
-import { React, useState, useEffect } from "react";
+import { React, useState, useCallback } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -11,38 +11,38 @@ import { getUser } from "./service/users";
 import Frontpage from "./Frontpage/Frontpage";
 import Navbar from "./Navbar/Navbar";
 import LoginPage from "./LoginPage/LoginPage";
-import JournalForm from "./JournalForm/JournalForm";
-import JournalEntry from "./JournalEntry/JournalEntry";
 import SignUpPage from "./SignUpPage/SignUpPage";
 
 export default function App() {
-  const [user, setUser] = useState(getUser);
+  const [user, setUser] = useState(getUser());
   const [month, setMonth] = useState(new Date().getMonth());
+  const [refreshJournal, setRefreshJournal] = useState(false); // State to trigger refresh
+
+  // Function to toggle refresh state
+  const triggerJournalRefresh = useCallback(() => {
+    console.log('triggerJournalRefresh called');
+    setRefreshJournal(prev => !prev);
+  }, []);
+
+  if (!user) {
+    return (
+      <Router>
+        <Routes>
+          <Route path="/" element={<LoginPage setUser={setUser} />} />
+          <Route path="/signup" element={<SignUpPage />} />
+          <Route path="*" element={<Navigate replace to="/" />} />
+        </Routes>
+      </Router>
+    );
+  }
 
   return (
     <Router>
-      {" "}
-      {/* <-- Wrap your application with Router */}
-      <main className="App">
-        {user ? (
-          <>
-            <Navbar setMonth={setMonth} />
-            <Routes>
-              <Route path="/" element={<Frontpage month={month} />} />
-              {/* other routes for logged-in users */}
-            </Routes>
-          </>
-        ) : (
-          <Routes>
-            <Route path="/" element={<LoginPage setUser={setUser} />} />
-            <Route path="/signup" element={<SignUpPage />} />
-            {/* Redirect any other route to the Login Page */}
-            <Route path="/journal/new" element={<JournalForm />} />
-            <Route path="*" element={<Navigate replace to="/" />} />
-          </Routes>
-        )}
-      </main>
+      <Navbar setMonth={setMonth} triggerJournalRefresh={triggerJournalRefresh} />
+      <Routes>
+        <Route path="/" element={<Frontpage month={month} refreshJournal={refreshJournal} />} />
+        {/* other routes for logged-in users */}
+      </Routes>
     </Router>
   );
 }
-

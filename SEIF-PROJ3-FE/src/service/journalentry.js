@@ -17,3 +17,10 @@ export async function getJournalEntryById(entryId) {
   return await journalAPI.getJournalEntryById(entryId);
 }
 
+export async function updateJournalEntry(entryId, entryData) {
+  return await journalAPI.updateJournalEntry(entryId, entryData);
+}
+
+export async function deleteJournalEntry(entryId) {
+  return await journalAPI.deleteJournalEntry(entryId);
+}

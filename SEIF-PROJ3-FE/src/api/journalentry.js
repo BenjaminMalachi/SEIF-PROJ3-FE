@@ -61,3 +61,40 @@ export async function getJournalEntryById(entryId) {
   }
 }
 
+export async function updateJournalEntry(entryId, entryData) {
+  const token = getToken();
+  const updateURL = `${BASE_URL}/${entryId}`; 
+  const response = await fetch(updateURL, {
+    method: 'PUT', // PUT method for updating
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify(entryData),
+  });
+
+  if (response.ok) {
+    return response.json();
+  } else {
+    const errorBody = await response.text();
+    console.error('Error response body:', errorBody);
+    throw new Error('Failed to update journal entry');
+  }
+}
+
+export async function deleteJournalEntry(entryId) {
+  const token = getToken();
+  const deleteURL = `${BASE_URL}/${entryId}`; 
+  const response = await fetch(deleteURL, {
+    method: 'DELETE', // DELETE method for deletion
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    console.error('Error response body:', errorBody);
+    throw new Error('Failed to delete journal entry');
+  }
+}

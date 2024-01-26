@@ -8,8 +8,9 @@ function Navbar(props) {
   const [isJournalFormOpen, setIsJournalFormOpen] = React.useState(false);
 
   const handleCloseJournalForm = () => {
+    document.getElementById("my_modal_1").close();
     setIsJournalFormOpen(false);
-  };
+  };  
 
   const monthButtons = () => {
     const monthButtons = [];
@@ -83,7 +84,9 @@ function Navbar(props) {
       </div>
 
       <dialog id="my_modal_1" className="modal">
-        <JournalForm onClose={handleCloseJournalForm} />
+        <JournalForm 
+          onClose={handleCloseJournalForm} 
+        />
       </dialog>
     </>
   );

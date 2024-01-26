@@ -1,52 +1,59 @@
 import React, { useState, useEffect } from "react";
-import { getJournalEntryById } from "../service/journalentry";
+import { getJournalEntryById, deleteJournalEntry } from "../service/journalentry";
 import JournalForm from "../JournalForm/JournalForm";
 
-function DayCard({ dateNo, day, journalEntryIds, card_id }) {
+function DayCard({ dateNo, day, journalEntryIds = [], card_id, triggerJournalRefresh }) {
   const [journalEntries, setJournalEntries] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [isHovering, setIsHovering] = useState(false);
   const [isJournalFormOpen, setIsJournalFormOpen] = useState(false);
-
-  // Function to fetch journal entries
-  const fetchJournalEntries = async () => {
-    try {
-      setIsLoading(true);
-      const entries = await Promise.all(
-        journalEntryIds.map((id) => getJournalEntryById(id))
-      );
-      setJournalEntries(entries);
-    } catch (err) {
-      setError("Failed to fetch journal entries");
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [editEntryData, setEditEntryData] = useState(null);
 
   useEffect(() => {
-    if (journalEntryIds && journalEntryIds.length > 0) {
-      fetchJournalEntries();
-    } else {
-      setIsLoading(false);
-    }
-  }, [journalEntryIds]);
+    const fetchJournalEntries = async () => {
+      try {
+        setIsLoading(true);
+        let entries = Array.isArray(journalEntryIds)
+          ? await Promise.all(journalEntryIds.map(id => getJournalEntryById(id)))
+          : [];
+        setJournalEntries(entries);
+      } catch (err) {
+        setError("Failed to fetch journal entries");
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+      console.log('Fetching journal entries due to triggerJournalRefresh');
+    };
+
+    fetchJournalEntries();
+  }, [journalEntryIds, triggerJournalRefresh]);
 
   const handleHover = () => {
     if (!isJournalFormOpen) {
-      setIsHovering(!isHovering);
+      setIsHovering(prev => !prev);
     }
   };
 
-  const handleAddJournalEntry = () => {
-    setIsHovering(false); // Hide button when opening the form
+  const handleEditJournalEntry = entry => {
+    setEditEntryData(entry);
     setIsJournalFormOpen(true);
+  };
+
+  const handleDeleteJournalEntry = async entryId => {
+    try {
+      await deleteJournalEntry(entryId);
+      triggerJournalRefresh();
+    } catch (err) {
+      setError("Failed to delete journal entry");
+      console.error(err);
+    }
   };
 
   const handleCloseJournalForm = () => {
     setIsJournalFormOpen(false);
-    fetchJournalEntries(); // Refresh entries after adding a new one
+    triggerJournalRefresh();
   };
 
   if (isLoading) return <div>Loading...</div>;
@@ -63,33 +70,30 @@ function DayCard({ dateNo, day, journalEntryIds, card_id }) {
         <p className="text-2xl font-bold">{day}</p>
 
         {isJournalFormOpen && (
-          <JournalForm card_id={card_id} onClose={handleCloseJournalForm} />
+          <JournalForm
+            card_id={card_id}
+            entryData={editEntryData}
+            onClose={handleCloseJournalForm}
+            onUpdate={handleEditJournalEntry}
+            onDelete={handleDeleteJournalEntry}
+          />
         )}
 
-        {isHovering && (
-          <div>
-            {journalEntries.map((entry, index) => (
-              <div key={index}>
-                <h3>{entry.entry_title}</h3>
-                <p>{entry.entry_description}</p>
-                <p>{entry.entry_text}</p>
-              </div>
-            ))}
-            {/* <button
-              className="btn btn-secondary"
-              onClick={handleAddJournalEntry}
-            >
-              Add Journal Entry
-            </button> */}
-          </div>
-        ))}
-
-        {/* Button Visible Only On Hover */}
-        {isHovering && !isJournalFormOpen && (
-          <button className="btn btn-secondary" onClick={handleAddJournalEntry}>
-            Add Journal Entry
-          </button>
-        )}
+        <div>
+          {journalEntries.map((entry, index) => (
+            <div key={index} className="journal-entry-container">
+              <h3>{entry.entry_title}</h3>
+              {isHovering && (
+                <>
+                  <p>{entry.entry_description}</p>
+                  <p>{entry.entry_text}</p>
+                  <button onClick={() => handleEditJournalEntry(entry)}>Edit</button>
+                  <button onClick={() => handleDeleteJournalEntry(entry._id)}>Delete</button>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
