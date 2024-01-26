@@ -1,4 +1,4 @@
-const BASE_URL = process.env.NODE_ENV === 'development'
+const BASE_URL = import.meta.env.MODE === 'development'
   ? 'http://localhost:3000/users'
   : 'https://seif-proj-3-be-379k.vercel.app/users';
 
