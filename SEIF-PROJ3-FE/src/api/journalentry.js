@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:3000/journal';
+const BASE_URL = 'https://seif-proj-3-be-379k.vercel.app/journal';
 
 //create journal based on auth token
 export async function createJournalEntry(entryData, token) {

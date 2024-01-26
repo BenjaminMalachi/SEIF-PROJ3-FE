@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:3000/daycard';
+const BASE_URL = 'https://seif-proj-3-be-379k.vercel.app/daycard';
 
 export async function getDayCardByDate(date) {
   const response = await fetch(`${BASE_URL}?date=${date}`, {
